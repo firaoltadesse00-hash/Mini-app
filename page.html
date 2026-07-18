@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextGen Learn - Smart Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans for a modern tech feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        appblue: { 600: '#1d4ed8', 800: '#1e3a8a', 900: '#0f172a' }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Modern invisible scrollbars */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Smooth transitions */
+        .fade-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .glass-input {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.2s ease;
+        }
+        .glass-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
+            background: rgba(15, 23, 42, 0.6);
+        }
+
+        /* Premium ambient glows */
+        .glow-bg {
+            position: absolute; width: 150px; height: 150px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(40px); pointer-events: none; z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-[#030712] flex justify-center items-center min-h-screen font-sans p-0 sm:p-6 overflow-x-hidden antialiased">
+
+    <!-- Standalone App Container -->
+    <div class="w-full max-w-md h-[800px] bg-[#070b14] text-gray-100 flex flex-col relative shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden sm:rounded-[32px] border border-gray-800/65">
+        
+        <!-- Ambient decorative lights -->
+        <div class="glow-bg top-[-50px] left-[-30px]"></div>
+        <div class="glow-bg bottom-[100px] right-[-50px] !bg-indigo-950/20"></div>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 0: ADVANCED AUTHENTICATION (Sign In / Sign Up)      -->
+        <!-- ========================================================= -->
+        <div id="auth-screen" class="fade-transition opacity-100 transform scale-100 flex-1 flex flex-col justify-center p-8 space-y-7 z-10 overflow-y-auto no-scrollbar relative">
+            <div class="text-center relative">
+                <!-- Decorative glow behind icon -->
+                <div class="absolute inset-0 bg-blue-500/10 blur-2xl rounded-full w-24 h-24 mx-auto pointer-events-none"></div>
+                
+                <!-- CUSTOMIZABLE APP LOGO (LOGIN SCREEN) -->
+                <div class="w-20 h-20 mx-auto rounded-3xl flex items-center justify-center shadow-xl shadow-blue-500/20 mb-4 transition-transform hover:scale-105 duration-300 overflow-hidden bg-gray-900 border border-gray-800">
+                    <img src="https://ui-avatars.com/api/?name=NX&background=2563eb&color=fff&size=128&font-size=0.4&bold=true" alt="App Logo" class="w-full h-full object-cover">
+                </div>
+                
+                <h1 class="text-2xl font-extrabold text-white tracking-tight uppercase">NextGen App</h1>
+                <p class="text-gray-400 text-xs mt-1.5 font-medium tracking-wide">Dynamic Learning Console</p>
+            </div>
+
+            <!-- Mode Selector Tabs -->
+            <div class="flex bg-gray-950/90 p-1.5 rounded-2xl border border-gray-800/80">
+                <button id="tab-mode-login" onclick="toggleAuthMode('login')" class="flex-1 py-2.5 text-xs font-bold rounded-xl text-blue-400 bg-[#111827] border border-gray-800/60 shadow-lg transition-all duration-300">Sign In</button>
+                <button id="tab-mode-signup" onclick="toggleAuthMode('signup')" class="flex-1 py-2.5 text-xs font-bold rounded-xl text-gray-400 hover:text-gray-200 transition-all duration-300">Create Account</button>
+            </div>
+
+            <!-- Core Input Fields Box -->
+            <div class="space-y-4">
+                <div id="signup-profile-fields" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider text-blue-400 font-bold mb-1.5 ml-1">Full Name</label>
+                        <div class="relative">
+                            <i class="fa-regular fa-user absolute left-4 top-3.5 text-gray-500 text-xs"></i>
+                            <input type="text" id="auth-fullname" class="w-full glass-input rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none" placeholder="e.g. John Doe">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-wider text-blue-400 font-bold mb-1.5 ml-1">Academic Grade</label>
+                        <div class="relative">
+                            <select id="auth-grade" class="w-full glass-input rounded-xl px-4 py-3 text-xs text-gray-400 focus:outline-none appearance-none cursor-pointer">
+                                <option value="9">Grade 9</option>
+                                <option value="10">Grade 10</option>
+                                <option value="11">Grade 11</option>
+                                <option value="12">Grade 12</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-4 top-3.5 text-gray-500 text-xs pointer-events-none"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] uppercase tracking-wider text-blue-400 font-bold mb-1.5 ml-1">Email Address</label>
+                    <div class="relative">
+                        <i class="fa-regular fa-envelope absolute left-4 top-3.5 text-gray-500 text-xs"></i>
+                        <input type="email" id="email" class="w-full glass-input rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none" placeholder="yourname@gmail.com">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase tracking-wider text-blue-400 font-bold mb-1.5 ml-1">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-4 top-3.5 text-gray-500 text-xs"></i>
+                        <input type="password" id="password" class="w-full glass-input rounded-xl pl-10 pr-4 py-3 text-xs text-white focus:outline-none" placeholder="••••••••">
+                    </div>
+                </div>
+                
+                <button id="btn-auth-action" class="w-full bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-500 hover:to-indigo-400 text-white text-xs font-bold py-3.5 rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/20 mt-4 active:scale-[0.98]">Sign In</button>
+            </div>
+
+            <!-- Demo Mode Indicator -->
+            <div class="text-center pt-2">
+                <button onclick="bootDemoMode()" class="text-[10px] text-blue-400 hover:underline font-semibold bg-blue-500/5 hover:bg-blue-500/10 px-3 py-1.5 rounded-lg border border-blue-500/10 transition-colors">
+                    <i class="fa-solid fa-bolt mr-1"></i> Quick Test (Offline Demo Mode)
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- MAIN APP FRAME (Contains Home, Courses, Profile)           -->
+        <!-- ========================================================= -->
+        <div id="main-app-screen" class="hidden fade-transition opacity-0 transform scale-95 flex-1 flex flex-col overflow-hidden z-10 bg-[#070b14]">
+            
+            <!-- Global Floating Announcement Banner -->
+            <div id="announcement-banner" class="hidden shrink-0 bg-blue-600 text-white text-[11px] font-bold px-4 py-2.5 flex justify-between items-center z-30 shadow-md">
+                <span class="flex items-center gap-2"><i class="fa-solid fa-bullhorn text-amber-300"></i> <span id="announcement-text">Welcome Announcement</span></span>
+                <button onclick="closeAnnouncement()" class="text-white/70 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Views Container -->
+            <div class="flex-1 relative overflow-hidden">
+                
+                <!-- 1. HOME VIEW -->
+                <div id="view-home" class="absolute inset-0 overflow-y-auto no-scrollbar flex flex-col pb-6 bg-[#070b14]">
+                    <!-- Dark Redesigned Header Without Giant Blue Background -->
+                    <div class="px-5 pt-6 pb-4 flex justify-between items-center relative z-10 border-b border-gray-800/40">
+                        <div class="flex items-center gap-3">
+                            <img src="https://ui-avatars.com/api/?name=NX&background=2563eb&color=fff&size=128&font-size=0.4&bold=true" class="w-9 h-9 rounded-xl shadow-md border border-gray-800" alt="Logo">
+                            <div>
+                                <p id="home-greeting-time" class="text-gray-500 text-[9px] font-bold tracking-wide uppercase">Good Morning</p>
+                                <h2 id="home-greeting-name" class="text-white font-extrabold text-xs truncate max-w-[150px]">Student</h2>
+                            </div>
+                        </div>
+                        <button onclick="toggleNotification()" class="relative w-9 h-9 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center text-gray-400 hover:text-white transition-all">
+                            <i class="fa-regular fa-bell text-xs"></i>
+                            <span id="notif-dot" class="absolute top-2 right-2.5 w-1.5 h-1.5 bg-red-500 rounded-full hidden animate-pulse"></span>
+                        </button>
+                    </div>
+
+                    <!-- Floating Custom Headline/Image Banner (Set by Admin) -->
+                    <div id="hero-banner-container" class="px-5 mt-4 relative z-20">
+                        <div class="w-full h-40 bg-gray-900 rounded-2xl overflow-hidden shadow-lg border border-gray-800 group relative">
+                            <img id="hero-banner-img" src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Banner">
+                            <!-- Overlay Text -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent flex flex-col justify-end p-4">
+                                <h3 id="hero-banner-text" class="text-white font-black text-sm line-clamp-2 leading-tight">Discover New Premium Courses Inside Today!</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Platform Tutorial Box -->
+                    <div class="px-5 mt-4">
+                        <div class="bg-gradient-to-r from-blue-500/5 to-indigo-500/5 border border-blue-500/10 rounded-2xl p-3.5 flex items-center justify-between cursor-pointer hover:bg-gray-900/60 transition-all">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/10"><i class="fa-solid fa-play text-[10px] ml-0.5"></i></div>
+                                <div>
+                                    <h3 class="text-gray-200 font-extrabold text-xs">How to start learning?</h3>
+                                    <p class="text-gray-500 text-[9px] mt-0.5">Quick platform configuration tutorial</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-gray-600 text-xs mr-1"></i>
+                        </div>
+                    </div>
+
+                    <!-- Grid Block Box Content Section (Matches the Layout in Image) -->
+                    <div class="px-5 mt-5 flex-1">
+                        <div class="flex items-center justify-between mb-3.5">
+                            <h2 class="text-xs font-black text-white tracking-wider uppercase opacity-90">New Handpicked Courses</h2>
+                            <span class="text-[9px] text-blue-400 font-bold bg-blue-500/5 border border-blue-500/10 px-2 py-0.5 rounded-lg">Featured Grid</span>
+                        </div>
+                        
+                        <!-- Dynamic Grid Container (Synced dynamically with Admin upload controls) -->
+                        <div id="home-featured-grid" class="grid grid-cols-2 gap-4">
+                            <!-- Injected Dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. COURSES VIEW (Database Grid Search) -->
+                <div id="view-courses" class="hidden absolute inset-0 overflow-y-auto no-scrollbar flex flex-col bg-[#070b14]">
+                    <div class="px-5 pt-6 pb-2 shrink-0">
+                        <h1 class="text-xl font-extrabold text-white tracking-wide">Explore Courses</h1>
+                    </div>
+                    <!-- Search Bar -->
+                    <div class="px-5 pt-2 pb-2 shrink-0 sticky top-0 bg-[#070b14] z-20">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-400 text-xs"></i>
+                            <input type="text" id="course-search-input" onkeyup="filterCourses()" class="w-full bg-[#131b2e] border border-gray-700/50 rounded-2xl pl-10 pr-4 py-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors" placeholder="Search for subjects...">
+                        </div>
+                    </div>
+                    <!-- Filters -->
+                    <div class="flex overflow-x-auto no-scrollbar gap-2 px-5 py-2 shrink-0 border-b border-gray-800/50">
+                        <button onclick="setCategoryFilter('all')" id="filter-all" class="filter-btn shrink-0 px-5 py-2 rounded-full text-[10px] font-extrabold tracking-widest bg-blue-600 text-white shadow-md shadow-blue-600/20 transition-all">ALL</button>
+                        <button onclick="setCategoryFilter('math')" id="filter-math" class="filter-btn shrink-0 px-5 py-2 rounded-full text-[10px] font-extrabold tracking-widest bg-transparent border border-gray-700 text-gray-400 hover:text-white transition-all">MATH</button>
+                        <button onclick="setCategoryFilter('physics')" id="filter-physics" class="filter-btn shrink-0 px-5 py-2 rounded-full text-[10px] font-extrabold tracking-widest bg-transparent border border-gray-700 text-gray-400 hover:text-white transition-all">PHYSICS</button>
+                        <button onclick="setCategoryFilter('chemistry')" id="filter-chemistry" class="filter-btn shrink-0 px-5 py-2 rounded-full text-[10px] font-extrabold tracking-widest bg-transparent border border-gray-700 text-gray-400 hover:text-white transition-all">CHEMISTRY</button>
+                        <button onclick="setCategoryFilter('english')" id="filter-english" class="filter-btn shrink-0 px-5 py-2 rounded-full text-[10px] font-extrabold tracking-widest bg-transparent border border-gray-700 text-gray-400 hover:text-white transition-all">ENGLISH</button>
+                    </div>
+                    <div class="p-5 flex-1 pb-20">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-sm font-extrabold text-white tracking-wide">Database Matches</h2>
+                            <span id="course-counter" class="text-[10px] text-gray-500 font-medium bg-gray-900 px-2 py-0.5 rounded border border-gray-800">0 Courses</span>
+                        </div>
+                        <!-- Dynamic Course Grid -->
+                        <div id="firestore-courses" class="grid grid-cols-2 gap-4"></div>
+                    </div>
+                </div>
+
+                <!-- 3. PROFILE & ADMIN VIEW -->
+                <div id="view-profile" class="hidden absolute inset-0 overflow-y-auto no-scrollbar flex flex-col bg-[#070b14] p-5 space-y-6">
+                    <div class="flex justify-between items-center pt-2">
+                        <h1 class="text-xl font-extrabold text-white tracking-wide">Your Profile</h1>
+                        <button id="btn-logout" class="w-9 h-9 rounded-full border border-gray-700 bg-gray-800/50 flex items-center justify-center text-red-400 hover:bg-red-500/10 transition-all shadow-sm" title="Log Out">
+                            <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Student Info Card -->
+                    <div class="bg-[#131b2e] border border-gray-700/80 rounded-3xl p-5 shadow-lg relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
+                        <div class="flex items-center gap-4 border-b border-gray-700/60 pb-4 relative z-10">
+                            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-xl shadow-lg">
+                                <i class="fa-solid fa-user-graduate"></i>
+                            </div>
+                            <div>
+                                <h3 id="profile-fullname" class="font-extrabold text-white text-base">John Doe</h3>
+                                <p id="profile-email" class="text-gray-400 text-[11px] font-medium mt-0.5">student@gmail.com</p>
+                            </div>
+                        </div>
+                        <div class="pt-4 space-y-3 relative z-10">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500 text-xs font-semibold">Academic Grade:</span>
+                                <span id="profile-grade" class="font-bold text-white text-xs bg-gray-800 px-2.5 py-1 rounded-lg border border-gray-700">Grade 9</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500 text-xs font-semibold">Membership Status:</span>
+                                <span id="profile-tier" class="font-extrabold text-amber-500 text-xs bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">Free Tier</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- [ADMIN ONLY]: Master Dashboard Control Center -->
+                    <div id="admin-master-dashboard" class="hidden bg-[#1a1625] border border-purple-500/30 rounded-3xl p-5 space-y-5 shadow-xl">
+                        <div class="flex items-center gap-2 border-b border-gray-700/80 pb-3">
+                            <i class="fa-solid fa-screwdriver-wrench text-purple-400"></i>
+                            <h3 class="text-xs font-black text-purple-400 uppercase tracking-widest">Admin Control Center</h3>
+                        </div>
+
+                        <!-- A: Floating Banner Control -->
+                        <div class="space-y-2">
+                            <label class="block text-[9px] text-gray-400 font-extrabold uppercase tracking-wider">Set Home Floating Banner</label>
+                            <div class="flex flex-col gap-2">
+                                <input type="text" id="admin-banner-img" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-purple-500" placeholder="Paste Image URL here...">
+                                <input type="text" id="admin-banner-text" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-purple-500" placeholder="Banner Headline Text...">
+                                <button id="btn-update-banner" class="w-full bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold py-2.5 rounded-xl transition-all">Push to Home Screen</button>
+                            </div>
+                        </div>
+
+                        <!-- B: Payment Account Numbers -->
+                        <div class="border-t border-gray-700/80 pt-4 space-y-2">
+                            <label class="block text-[9px] text-gray-400 font-extrabold uppercase tracking-wider">Admin Payment Accounts (For Premium)</label>
+                            <div class="flex flex-col gap-2">
+                                <textarea id="admin-bank-textarea" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-purple-500 h-16" placeholder="E.g. Send 299 ETB to:\nCBE: 1000xxxxxx\nTelebirr: 0911xxxx"></textarea>
+                                <button id="btn-update-bank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold py-2.5 rounded-xl transition-all">Update Checkout Instructions</button>
+                            </div>
+                        </div>
+
+                        <!-- C: Add Course Box -->
+                        <div class="border-t border-gray-700/80 pt-4 space-y-2">
+                            <label class="block text-[9px] text-gray-400 font-extrabold uppercase tracking-wider">Create New Course Box (Updates Home Grid)</label>
+                            <div class="flex flex-col gap-2">
+                                <input type="text" id="course-title" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-purple-500" placeholder="Course Title (e.g., Chemistry Core)">
+                                <input type="text" id="course-desc" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-purple-500" placeholder="Short Description / Subtitle">
+                                <input type="text" id="course-thumbnail" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-[11px] text-white focus:outline-none focus:border-purple-500" placeholder="Custom Picture / Thumbnail Image URL">
+                                <select id="course-theme-select" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-[11px] text-gray-400 focus:outline-none focus:border-purple-500">
+                                    <option value="math">Mathematics (Emerald Glow)</option>
+                                    <option value="english">English (Teal Glow)</option>
+                                    <option value="physics">Physics (Amber Glow)</option>
+                                    <option value="chemistry">Chemistry (Purple Glow)</option>
+                                </select>
+                                <button id="btn-add-course" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold py-2.5 rounded-xl transition-all">Add to Database Grid</button>
+                            </div>
+                        </div>
+
+                        <!-- D: Announce & Students -->
+                        <div class="border-t border-gray-700/80 pt-4 space-y-4">
+                            <div class="space-y-2">
+                                <label class="block text-[9px] text-gray-400 font-extrabold uppercase tracking-wider">Send App Notification</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="admin-broadcast-msg" class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-[11px] text-white focus:outline-none focus:border-purple-500" placeholder="Message text...">
+                                    <button id="btn-send-broadcast" class="bg-gray-700 hover:bg-gray-600 text-white text-[11px] font-bold px-4 rounded-xl transition-colors">Send</button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <label class="block text-[9px] text-gray-400 font-extrabold uppercase tracking-wider">Student Manager</label>
+                                    <span id="student-counter" class="text-[9px] text-purple-400 font-bold">0 Users</span>
+                                </div>
+                                <div id="admin-student-list" class="max-h-48 overflow-y-auto space-y-2 border border-gray-800 rounded-xl p-2 bg-black/30 no-scrollbar">
+                                    <p class="text-[10px] text-gray-500 text-center py-4">No students yet.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- App Bottom Navigation Bar -->
+            <nav class="bg-[#0b0f19] border-t border-gray-800/80 flex justify-around items-center pt-3 pb-5 px-2 shrink-0 rounded-b-[32px] relative z-20">
+                <button id="nav-home" onclick="switchAppTab('home')" class="flex flex-col items-center gap-1 text-blue-500 transition-colors w-16">
+                    <i class="fa-solid fa-house text-lg"></i>
+                    <span class="text-[9px] font-bold">Home</span>
+                </button>
+                <button id="nav-courses" onclick="switchAppTab('courses')" class="flex flex-col items-center gap-1 text-gray-500 hover:text-blue-400 transition-colors w-16">
+                    <i class="fa-solid fa-book-open text-lg"></i>
+                    <span class="text-[9px] font-bold">Courses</span>
+                </button>
+                <button id="nav-premium" onclick="openPaymentModal()" class="flex flex-col items-center gap-1 text-amber-500 hover:text-amber-400 transition-colors w-16 transform hover:scale-105">
+                    <i class="fa-solid fa-crown text-lg"></i>
+                    <span class="text-[9px] font-extrabold">Premium</span>
+                </button>
+                <button id="nav-profile" onclick="switchAppTab('profile')" class="flex flex-col items-center gap-1 text-gray-500 hover:text-blue-400 transition-colors w-16">
+                    <i class="fa-solid fa-user text-lg"></i>
+                    <span class="text-[9px] font-bold">Profile</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- SCREEN 2: COURSE DETAILS & VIDEO LECTURE VIEWER           -->
+        <!-- ========================================================= -->
+        <div id="details-screen" class="hidden fade-transition opacity-0 transform scale-95 flex-1 flex flex-col overflow-hidden bg-[#090d16] z-10">
+            <!-- Dynamic Video Player Wrapper -->
+            <div class="relative w-full aspect-video bg-black shrink-0 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                <div class="absolute top-3 left-3 right-3 flex justify-between items-center z-20 pointer-events-none">
+                    <button onclick="navigateToCatalog()" class="bg-gray-950/80 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors border border-gray-800/40 pointer-events-auto shadow-md">
+                        <i class="fa-solid fa-arrow-left text-xs text-white"></i>
+                    </button>
+                    <span id="player-badge" class="text-[9px] font-extrabold bg-gray-950/80 px-3 py-1.5 rounded-full text-blue-400 border border-blue-500/15 tracking-wide">Course Lectures</span>
+                </div>
+                <div id="video-container" class="w-full h-full">
+                    <div class="w-full h-full flex flex-col justify-center items-center text-center bg-gray-950 text-gray-500">
+                        <i class="fa-solid fa-play-circle text-4xl mb-2 text-gray-700"></i>
+                        <p class="text-[11px]">No active video selected</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Header Context -->
+            <div class="p-5 border-b border-gray-800/60 shrink-0">
+                <h2 id="course-header-title" class="text-sm font-extrabold text-white line-clamp-1">Select Course</h2>
+                <div class="flex items-center gap-3 mt-2 text-[10px]">
+                    <span id="course-lesson-count" class="bg-blue-500/10 text-blue-400 border border-blue-500/10 px-2.5 py-1 rounded-md font-extrabold">0 Lessons</span>
+                    <span class="text-gray-400 flex items-center gap-1 font-semibold"><i class="fa-solid fa-star text-amber-500 text-[9px]"></i> <span id="course-rating">4.9</span> Rated</span>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-800/60 text-[11px] font-extrabold tracking-wider shrink-0 bg-gray-950/30">
+                <button id="tab-contents" onclick="switchMediaTab('contents')" class="flex-1 py-3 text-center text-blue-400 border-b-2 border-blue-500 transition-all duration-300">Course Lectures</button>
+                <button id="tab-pdf" onclick="switchMediaTab('pdf')" class="flex-1 py-3 text-center text-gray-500 hover:text-gray-300 transition-all duration-300">PDF Resources</button>
+            </div>
+
+            <!-- Lecture Playlists -->
+            <div id="tab-panel-contents" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#060a12] no-scrollbar">
+                <div id="admin-lesson-panel" class="hidden bg-[#111827]/80 border border-blue-500/25 p-3 rounded-2xl space-y-2.5 mb-2">
+                    <p class="text-[9px] font-extrabold text-blue-400 uppercase tracking-widest">Admin: Add Video</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="lesson-title" class="bg-gray-950/60 border border-gray-800 rounded-lg p-2 text-[10px] text-white focus:outline-none" placeholder="Title">
+                        <input type="text" id="lesson-video-url" class="bg-gray-950/60 border border-gray-800 rounded-lg p-2 text-[10px] text-white focus:outline-none col-span-2" placeholder="YouTube URL">
+                        <input type="text" id="lesson-time" class="bg-gray-950/60 border border-gray-800 rounded-lg p-2 text-[10px] text-white focus:outline-none" placeholder="Time (e.g. 15 mins)">
+                    </div>
+                    <div class="flex items-center justify-between pt-1">
+                        <label class="flex items-center gap-1.5 text-[9px] text-gray-400 cursor-pointer select-none">
+                            <input type="checkbox" id="lesson-locked" class="rounded border-gray-850 bg-gray-950 text-blue-500 focus:ring-0 w-3 h-3"> Premium Lock
+                        </label>
+                        <button id="btn-add-lesson" class="bg-blue-600 hover:bg-blue-700 text-white text-[9px] font-extrabold px-3 py-1.5 rounded-lg transition-colors">Publish</button>
+                    </div>
+                </div>
+                <div id="live-chapters-list" class="space-y-3"></div>
+            </div>
+
+            <!-- PDF Panel -->
+            <div id="tab-panel-pdf" class="hidden flex-1 overflow-y-auto p-4 space-y-3 bg-[#060a12] no-scrollbar">
+                <div id="admin-pdf-panel" class="hidden bg-[#111827]/80 border border-red-500/25 p-3 rounded-2xl space-y-2.5 mb-2">
+                    <p class="text-[9px] font-extrabold text-red-400 uppercase tracking-widest">Admin: Add PDF File</p>
+                    <div class="flex flex-col gap-2">
+                        <input type="text" id="pdf-title" class="bg-gray-950/60 border border-gray-800 rounded-lg p-2 text-[10px] text-white focus:outline-none" placeholder="Document Title">
+                        <input type="text" id="pdf-url" class="bg-gray-950/60 border border-gray-800 rounded-lg p-2 text-[10px] text-white focus:outline-none" placeholder="Direct PDF URL">
+                    </div>
+                    <div class="flex justify-end pt-1">
+                        <button id="btn-add-pdf" class="bg-red-600 hover:bg-red-700 text-white text-[9px] font-extrabold px-3 py-1.5 rounded-lg transition-colors">Publish PDF</button>
+                    </div>
+                </div>
+                <div id="live-pdfs-list" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- IN-APP PDF VIEWER MODAL -->
+        <div id="pdf-viewer-modal" class="hidden absolute inset-0 bg-[#090d16] z-50 flex flex-col transition-opacity duration-300 opacity-0 shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+            <div class="px-5 py-4 flex justify-between items-center border-b border-gray-800 shrink-0 bg-[#0b0f19]">
+                <div class="flex items-center gap-3 min-w-0 pr-4">
+                    <div class="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400 border border-red-500/20 shrink-0"><i class="fa-solid fa-file-pdf text-xs"></i></div>
+                    <h3 id="pdf-viewer-title" class="font-extrabold text-white text-sm truncate">Loading Document...</h3>
+                </div>
+                <button onclick="closePdfViewer()" class="w-8 h-8 rounded-full bg-gray-800/40 flex items-center justify-center text-gray-400 hover:text-white transition-colors shrink-0"><i class="fa-solid fa-xmark text-xs"></i></button>
+            </div>
+            <div class="flex-1 w-full bg-[#efefef] relative">
+                <iframe id="pdf-iframe" class="w-full h-full border-0 absolute inset-0" src=""></iframe>
+            </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- PAYMENT GATEWAY & SECURE CHECKOUT SHEET                  -->
+        <!-- ========================================================= -->
+        <div id="payment-modal" class="hidden absolute inset-0 bg-black/75 backdrop-blur-md z-50 flex items-end transition-opacity duration-300 opacity-0">
+            <div class="w-full bg-[#0b0f19] border-t border-gray-800 rounded-t-[28px] p-6 space-y-5 transform translate-y-full transition-transform duration-300 max-h-[90%] overflow-y-auto no-scrollbar relative shadow-[0_-15px_30px_rgba(0,0,0,0.6)]">
+                <div class="w-12 h-1 bg-gray-800 rounded-full mx-auto mb-1"></div>
+                
+                <div class="flex items-center justify-between border-b border-gray-800 pb-4">
+                    <div>
+                        <h3 class="font-extrabold text-white text-sm flex items-center gap-2"><i class="fa-solid fa-shield-halved text-amber-400 text-sm"></i> Premium Checkout</h3>
+                        <p class="text-gray-500 text-[9px] font-semibold tracking-wider uppercase mt-0.5">Unlock all chapters & notes instantly</p>
+                    </div>
+                    <button onclick="closePaymentModal()" class="w-8 h-8 rounded-full bg-gray-800/40 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- ADMIN PAYMENT DETAILS RENDERED HERE -->
+                <div class="bg-gray-900/60 border border-amber-500/30 rounded-xl p-3 shadow-inner">
+                    <span class="block text-[9px] text-amber-400 font-extrabold uppercase tracking-widest mb-1.5"><i class="fa-solid fa-circle-info mr-1"></i> Admin Payment Instructions</span>
+                    <div id="display-admin-bank-info" class="whitespace-pre-line leading-relaxed text-[11px] font-medium text-white opacity-90">Loading instructions...</div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="block text-[9px] text-gray-400 font-extrabold uppercase tracking-widest ml-1">Confirm Provider</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="selectPaymentProvider('telebirr')" id="pay-provider-telebirr" class="p-2.5 bg-gray-950/40 border border-emerald-500/30 rounded-xl flex flex-col items-center gap-1.5 transition duration-200">
+                            <i class="fa-solid fa-mobile-screen text-emerald-400 text-base"></i><span class="text-[9px] font-bold text-white">Telebirr</span>
+                        </button>
+                        <button onclick="selectPaymentProvider('cbe_birr')" id="pay-provider-cbe_birr" class="p-2.5 bg-[#1e293b]/40 border border-gray-800 rounded-xl flex flex-col items-center gap-1.5 transition duration-200">
+                            <i class="fa-solid fa-building-columns text-violet-400 text-base"></i><span class="text-[9px] font-bold text-white">CBE Birr</span>
+                        </button>
+                        <button onclick="selectPaymentProvider('awash_birr')" id="pay-provider-awash_birr" class="p-2.5 bg-[#1e293b]/40 border border-gray-800 rounded-xl flex flex-col items-center gap-1.5 transition duration-200">
+                            <i class="fa-solid fa-money-bill-transfer text-orange-400 text-base"></i><span class="text-[9px] font-bold text-white">Awash Birr</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="payment-input-container" class="space-y-3">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] text-gray-400 font-bold uppercase ml-1">Telebirr Phone Number</label>
+                        <input type="text" id="pay-phone" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-3 text-xs text-white focus:outline-none focus:border-blue-500" placeholder="09xxxxxxxx">
+                    </div>
+                </div>
+
+                <button onclick="executePaymentSim()" id="btn-pay-submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-3.5 rounded-xl transition shadow-lg shadow-amber-600/20 duration-300">
+                    Confirm I Have Sent The Payment
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- UI State Handling Router JS script + Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, setDoc, getDoc, updateDoc, onSnapshot, query, orderBy, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyB8qgmOngemlvcX5I9HeK5W5sjPEQbQTq0",
+          authDomain: "neuron-academy-e623d.firebaseapp.com",
+          projectId: "neuron-academy-e623d",
+          storageBucket: "neuron-academy-e623d.firebasestorage.app",
+          messagingSenderId: "1070690189729",
+          appId: "1:1070690189729:web:108453ed4085b205bccbe0"
+        };
+
+        let isFirebaseActive = false;
+        let app, auth, db;
+        const ADMIN_EMAIL = "firaoltadesse00@gmail.com";
+
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            isFirebaseActive = true;
+        } catch (err) {
+            console.warn("Firebase Init failed. Launching auto-fallback engine.", err);
+        }
+
+        // UI DOM Nodes
+        const authScreen = document.getElementById('auth-screen');
+        const mainAppScreen = document.getElementById('main-app-screen');
+        const detailsScreen = document.getElementById('details-screen');
+        
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const btnAuthAction = document.getElementById('btn-auth-action');
+        
+        const firestoreCoursesList = document.getElementById('firestore-courses');
+        const homeFeaturedGrid = document.getElementById('home-featured-grid');
+        
+        // Admin Panel Nodes
+        const courseTitleInput = document.getElementById('course-title');
+        const courseDescInput = document.getElementById('course-desc');
+        const courseThumbnailInput = document.getElementById('course-thumbnail');
+        const courseThemeSelect = document.getElementById('course-theme-select');
+        
+        const lessonTitleInput = document.getElementById('lesson-title');
+        const lessonVideoUrlInput = document.getElementById('lesson-video-url');
+        const lessonTimeInput = document.getElementById('lesson-time');
+        const lessonLockedInput = document.getElementById('lesson-locked');
+
+        const pdfTitleInput = document.getElementById('pdf-title');
+        const pdfUrlInput = document.getElementById('pdf-url');
+
+        // Layout Theme Configurations 
+        const courseThemes = {
+            math: { gradient: 'from-emerald-600 to-emerald-900', icon: 'fa-calculator', textClass: 'text-emerald-400' },
+            english: { gradient: 'from-teal-600 to-teal-900', icon: 'fa-language', textClass: 'text-teal-400' },
+            physics: { gradient: 'from-amber-600 to-amber-900', icon: 'fa-atom', textClass: 'text-amber-400' },
+            chemistry: { gradient: 'from-purple-600 to-purple-900', icon: 'fa-flask', textClass: 'text-purple-400' }
+        };
+
+        let isDemoMode = false;
+        let currentCourseId = null;
+        let liveLessons = [];
+        let livePdfs = [];
+        let demoLessons = {};
+        let demoPdfs = {};
+        let currentLessonIndex = 0;
+        let currentUserEmail = "";
+        let currentUserProfile = null;
+        let authMode = "login"; 
+        let globalCoursesCache = []; 
+        let selectedPaymentType = 'telebirr';
+        let currentCategoryFilter = 'all';
+
+        const demoCourses = [
+            { id: "c1", title: "Grade 12 Prep Module", description: "Mathematics Essentials", theme: "math", thumbnail: "https://images.unsplash.com/photo-1636466497217-26a8cbeaf0aa?auto=format&fit=crop&q=80&w=600" },
+            { id: "c2", title: "Physics Core Frameworks", description: "Newton's laws & Dynamics.", theme: "physics", thumbnail: "https://images.unsplash.com/photo-1507668077129-56e32842fceb?auto=format&fit=crop&q=80&w=600" }
+        ];
+
+        window.bootDemoMode = function() {
+            isDemoMode = true;
+            currentUserEmail = "demo@neuronacademy.com";
+            currentUserProfile = { fullName: "Demo Student", email: "demo@neuronacademy.com", grade: "12", premium: false, role: "student" };
+            setupUserUI();
+            switchScreen(authScreen, mainAppScreen);
+            globalCoursesCache = [...demoCourses];
+            document.getElementById('course-counter').innerText = `${globalCoursesCache.length} Active`;
+            renderFilteredCourses();
+            listenToSystemSettings();
+        };
+
+        window.toggleAuthMode = function(mode) {
+            authMode = mode;
+            if (mode === "login") {
+                document.getElementById('tab-mode-login').className = "flex-1 py-2.5 text-xs font-bold rounded-xl text-blue-400 bg-[#111827] border border-gray-800/60 shadow transition-all";
+                document.getElementById('tab-mode-signup').className = "flex-1 py-2.5 text-xs font-bold rounded-xl text-gray-400 hover:text-gray-200 transition-all";
+                document.getElementById('signup-profile-fields').classList.add('hidden');
+                btnAuthAction.innerText = "Sign In";
+            } else {
+                document.getElementById('tab-mode-signup').className = "flex-1 py-2.5 text-xs font-bold rounded-xl text-blue-400 bg-[#111827] border border-gray-800/60 shadow transition-all";
+                document.getElementById('tab-mode-login').className = "flex-1 py-2.5 text-xs font-bold rounded-xl text-gray-400 hover:text-gray-200 transition-all";
+                document.getElementById('signup-profile-fields').classList.remove('hidden');
+                btnAuthAction.innerText = "Register Account";
+            }
+        };
+
+        function getYouTubeId(url) {
+            if (!url) return null;
+            try {
+                if (url.includes('youtu.be/')) return url.split('youtu.be/')[1].split(/[?#]/)[0];
+                if (url.includes('/embed/')) return url.split('/embed/')[1].split(/[?#]/)[0];
+                const urlObj = new URL(url);
+                if (urlObj.hostname.includes('youtube.com')) return urlObj.searchParams.get('v');
+            } catch (e) {}
+            const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?vi?=|&vi?=))([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[1].length === 11) ? match[1] : null;
+        }
+
+        window.switchAppTab = function(tabName) {
+            const views = ['home', 'courses', 'profile'];
+            views.forEach(v => {
+                document.getElementById('view-' + v).classList.add('hidden');
+                const btn = document.getElementById('nav-' + v);
+                if(btn) {
+                    btn.classList.remove('text-blue-500');
+                    btn.classList.add('text-gray-500');
+                }
+            });
+            document.getElementById('view-' + tabName).classList.remove('hidden');
+            const activeBtn = document.getElementById('nav-' + tabName);
+            if(activeBtn) {
+                activeBtn.classList.remove('text-gray-500');
+                activeBtn.classList.add('text-blue-500');
+            }
+        };
+
+        window.setCategoryFilter = function(category) {
+            currentCategoryFilter = category;
+            const categories = ['all', 'math', 'physics', 'chemistry', 'english'];
+            categories.forEach(cat => {
+                const btn = document.getElementById(`filter-${cat}`);
+                if (btn) {
+                    if(cat === category) {
+                        btn.className = "filter-btn shrink-0 px-5 py-2 rounded-full text-[10px] font-extrabold tracking-widest bg-blue-600 text-white shadow-md shadow-blue-600/20 transition-all";
+                    } else {
+                        btn.className = "filter-btn shrink-0 px-5 py-2 rounded-full text-[10px] font-extrabold tracking-widest bg-transparent border border-gray-700 text-gray-400 hover:text-white transition-all";
+                    }
+                }
+            });
+            renderFilteredCourses();
+        };
+
+        window.filterCourses = function() { renderFilteredCourses(); };
+
+        function loadFirestoreCourses() {
+            onSnapshot(query(collection(db, "courses"), orderBy("createdAt", "desc")), (snapshot) => {
+                globalCoursesCache = [];
+                snapshot.forEach((docSnap) => {
+                    globalCoursesCache.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                document.getElementById('course-counter').innerText = `${globalCoursesCache.length} Courses`;
+                renderFilteredCourses();
+            });
+        }
+
+        function renderFilteredCourses() {
+            const filterText = document.getElementById('course-search-input').value.toLowerCase().trim();
+            
+            // Clear lists
+            firestoreCoursesList.innerHTML = '';
+            homeFeaturedGrid.innerHTML = '';
+            
+            const filtered = globalCoursesCache.filter(course => {
+                const matchesText = course.title.toLowerCase().includes(filterText) || 
+                                   (course.description && course.description.toLowerCase().includes(filterText));
+                const matchesCategory = currentCategoryFilter === 'all' || course.theme === currentCategoryFilter;
+                return matchesText && matchesCategory;
+            });
+
+            if(filtered.length === 0) {
+                const noResultHTML = '<p class="text-xs text-gray-500 col-span-2 text-center py-10 font-medium bg-[#131b2e] rounded-2xl border border-gray-800">No courses match criteria.</p>';
+                firestoreCoursesList.innerHTML = noResultHTML;
+                homeFeaturedGrid.innerHTML = noResultHTML;
+                return;
+            }
+
+            filtered.forEach((course) => {
+                const theme = courseThemes[course.theme] || courseThemes['math'];
+                const isAdmin = currentUserEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+                // Advanced Custom Pictures Framework support 
+                const topSectionHTML = course.thumbnail && course.thumbnail.trim() !== ''
+                    ? `<div class="h-28 bg-cover bg-center relative shrink-0" style="background-image: url('${course.thumbnail}')">`
+                    : `<div class="h-28 bg-gradient-to-br ${theme.gradient} flex items-center justify-center relative shrink-0">
+                          <i class="fa-solid ${theme.icon} text-4xl text-white opacity-20"></i>`;
+
+                const cardInner = `
+                    ${topSectionHTML}
+                        ${isAdmin ? `<button class="btn-delete absolute top-2 right-2 text-white/80 hover:text-white bg-red-600/80 hover:bg-red-600 p-1.5 rounded-lg text-[10px] transition z-10 shadow" data-id="${course.id}"><i class="fa-solid fa-trash-can pointer-events-none"></i></button>` : ''}
+                    </div>
+                    <div class="p-3 flex flex-col flex-1 justify-between gap-2.5">
+                        <div>
+                            <p class="text-[9px] ${theme.textClass} font-bold uppercase tracking-wider truncate mb-0.5">${course.description || 'Core Curriculum'}</p>
+                            <h3 class="text-[11px] font-extrabold leading-tight text-white line-clamp-2">${course.title}</h3>
+                        </div>
+                        <div class="mt-auto">
+                            <button class="w-full bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-black tracking-widest py-2 rounded-xl transition-all shadow-md">CONTINUE</button>
+                        </div>
+                    </div>
+                `;
+
+                // Render onto the Search View catalog
+                const catalogCard = document.createElement('div');
+                catalogCard.className = `flex flex-col bg-[#131b2e] rounded-2xl overflow-hidden border border-gray-800 hover:border-blue-500/50 transition-all shadow-md relative cursor-pointer`;
+                catalogCard.onclick = () => navigateToDetails(course.id, course.theme, course.title.replace(/'/g, "\\'"), course.description ? course.description.replace(/'/g, "\\'") : '');
+                catalogCard.innerHTML = cardInner;
+                firestoreCoursesList.appendChild(catalogCard);
+
+                // Render onto the Homepage Layout Block Box Grid Matrix
+                const homeCard = document.createElement('div');
+                homeCard.className = `flex flex-col bg-[#0b0f19] rounded-2xl overflow-hidden border border-gray-800/80 hover:border-gray-700 transition-all relative cursor-pointer`;
+                homeCard.onclick = () => navigateToDetails(course.id, course.theme, course.title.replace(/'/g, "\\'"), course.description ? course.description.replace(/'/g, "\\'") : '');
+                homeCard.innerHTML = cardInner;
+                homeFeaturedGrid.appendChild(homeCard);
+            });
+
+            // Re-bind click elements to avoid events conflicts
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const id = e.currentTarget.getAttribute('data-id');
+                    if (confirm("Delete this course module?")) {
+                        if (isDemoMode) {
+                            globalCoursesCache = globalCoursesCache.filter(c => c.id !== id);
+                            renderFilteredCourses();
+                        } else {
+                            try { await deleteDoc(doc(db, "courses", id)); } catch(err) { alert("Error: " + err.message); }
+                        }
+                    }
+                });
+            });
+        }
+
+        window.openPaymentModal = function() {
+            const modal = document.getElementById('payment-modal');
+            modal.classList.remove('hidden');
+            selectPaymentProvider('telebirr');
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                modal.firstElementChild.style.transform = 'translateY(0)';
+            }, 50);
+        };
+
+        window.closePaymentModal = function() {
+            const modal = document.getElementById('payment-modal');
+            modal.firstElementChild.style.transform = 'translateY(100%)';
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        };
+
+        window.selectPaymentProvider = function(provider) {
+            selectedPaymentType = provider;
+            const providers = ['telebirr', 'cbe_birr', 'awash_birr'];
+            providers.forEach(p => {
+                const el = document.getElementById(`pay-provider-${p}`);
+                if(el) {
+                    if(p === provider) {
+                        el.className = "p-2.5 bg-gray-950 border border-amber-500/40 rounded-xl flex flex-col items-center gap-1.5 transition duration-200 scale-105 shadow-md shadow-amber-500/10";
+                    } else {
+                        el.className = "p-2.5 bg-[#1e293b]/20 border border-gray-800 rounded-xl flex flex-col items-center gap-1.5 transition duration-200 opacity-60";
+                    }
+                }
+            });
+
+            const inputContainer = document.getElementById('payment-input-container');
+            if (provider === 'telebirr' || provider === 'awash_birr') {
+                inputContainer.innerHTML = `<div class="space-y-1"><label class="block text-[10px] text-gray-400 font-bold uppercase ml-1">Wallet Phone Number</label><input type="text" id="pay-phone" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-3 text-xs text-white focus:outline-none focus:border-amber-500" placeholder="09xxxxxxxx"></div>`;
+            } else if (provider === 'cbe_birr') {
+                inputContainer.innerHTML = `<div class="space-y-2"><div><label class="block text-[10px] text-gray-400 font-bold uppercase ml-1">Phone Number</label><input type="text" id="pay-phone" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-3 text-xs text-white focus:outline-none focus:border-violet-500" placeholder="09xxxxxxxx"></div><div><label class="block text-[10px] text-gray-400 font-bold uppercase ml-1">PIN</label><input type="password" class="w-full bg-gray-950 border border-gray-800 rounded-xl px-3.5 py-3 text-xs text-white focus:outline-none focus:border-violet-500" placeholder="••••"></div></div>`;
+            }
+        };
+
+        window.executePaymentSim = async function() {
+            const btn = document.getElementById('btn-pay-submit');
+            const phoneInput = document.getElementById('pay-phone');
+
+            if (phoneInput && !phoneInput.value.trim()) { alert("Please enter payment details to confirm."); return; }
+            btn.disabled = true;
+
+            btn.innerText = "Confirming via Gateway...";
+            setTimeout(async () => {
+                try {
+                    if (isDemoMode) {
+                        currentUserProfile.premium = true;
+                        alert(`🎉 Success! Request sent via ${selectedPaymentType}.\nWelcome to Premium Access!`);
+                        setupUserUI();
+                        closePaymentModal();
+                    } else {
+                        const user = auth.currentUser;
+                        if(user) {
+                            await updateDoc(doc(db, "users", user.uid), { premium: true });
+                            alert(`🎉 Success! Request sent via ${selectedPaymentType}.\nWelcome to Premium Access!`);
+                            closePaymentModal();
+                        }
+                    }
+                } catch(e) { alert("Error: " + e.message); }
+                btn.disabled = false;
+                btn.innerText = "Confirm I Have Sent The Payment";
+            }, 2000);
+        };
+
+        btnAuthAction.addEventListener('click', async () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            if (!email || !password) return alert("Email and Password are required!");
+
+            btnAuthAction.disabled = true;
+            btnAuthAction.innerText = "Processing...";
+
+            if (!isFirebaseActive) {
+                alert("Cloud offline. Falling back to Demo Mode.");
+                bootDemoMode();
+                btnAuthAction.disabled = false;
+                btnAuthAction.innerText = authMode === "login" ? "Sign In" : "Register Account";
+                return;
+            }
+
+            try {
+                if (authMode === "login") {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    const fullName = document.getElementById('auth-fullname').value.trim();
+                    const grade = document.getElementById('auth-grade').value;
+                    if (!fullName) { alert("Provide full name!"); btnAuthAction.disabled = false; btnAuthAction.innerText = "Register Account"; return; }
+                    
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    await setDoc(doc(db, "users", userCredential.user.uid), { fullName, email, grade, role: "student", premium: false, createdAt: new Date() });
+                    alert("Account created!");
+                }
+            } catch (error) {
+                alert("Error: " + error.message + "\nTip: Trying Demo Mode instead.");
+                bootDemoMode();
+            }
+            btnAuthAction.disabled = false;
+            btnAuthAction.innerText = authMode === "login" ? "Sign In" : "Register Account";
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => { 
+            if (isDemoMode) {
+                isDemoMode = false;
+                currentUserProfile = null;
+                switchScreen(mainAppScreen, authScreen);
+            } else if (isFirebaseActive) {
+                signOut(auth); 
+            }
+        });
+
+        if (isFirebaseActive) {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUserEmail = user.email;
+                    onSnapshot(doc(db, "users", user.uid), (userDoc) => {
+                        if (userDoc.exists()) {
+                            currentUserProfile = userDoc.data();
+                        } else {
+                            currentUserProfile = { premium: false, role: "student", email: user.email };
+                        }
+                        setupUserUI();
+                    });
+
+                    switchScreen(authScreen, mainAppScreen);
+                    
+                    if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                        document.getElementById('admin-master-dashboard').classList.remove('hidden');
+                        document.getElementById('admin-lesson-panel').classList.remove('hidden');
+                        document.getElementById('admin-pdf-panel').classList.remove('hidden');
+                        listenToRegisteredStudents(); 
+                    } else {
+                        document.getElementById('admin-master-dashboard').classList.add('hidden');
+                        document.getElementById('admin-lesson-panel').classList.add('hidden');
+                        document.getElementById('admin-pdf-panel').classList.add('hidden');
+                    }
+
+                    loadFirestoreCourses();
+                    listenToGlobalAnnouncements(); 
+                    listenToSystemSettings();
+                } else {
+                    currentUserProfile = null;
+                    switchScreen(mainAppScreen, authScreen);
+                    detailsScreen.classList.add('hidden');
+                    document.getElementById('announcement-banner').classList.add('hidden');
+                }
+            });
+        }
+
+        function setupUserUI() {
+            if(!currentUserProfile) return;
+            
+            const hour = new Date().getHours();
+            let greeting = "Good Evening";
+            if (hour < 12) greeting = "Good Morning";
+            else if (hour < 18) greeting = "Good Afternoon";
+            
+            document.getElementById('home-greeting-time').innerText = greeting;
+            document.getElementById('home-greeting-name').innerText = currentUserProfile.fullName || currentUserEmail.split('@')[0];
+
+            document.getElementById('profile-fullname').innerText = currentUserProfile.fullName || "Student";
+            document.getElementById('profile-email').innerText = currentUserEmail;
+            document.getElementById('profile-grade').innerText = `Grade ${currentUserProfile.grade || '9'}`;
+            document.getElementById('profile-tier').innerText = currentUserProfile.premium ? "Premium Member ⭐" : "Free Member 🔓";
+        }
+
+        function switchScreen(fromScreen, toScreen) {
+            fromScreen.style.opacity = '0';
+            fromScreen.style.transform = 'scale(0.97)';
+            setTimeout(() => {
+                fromScreen.classList.add('hidden');
+                toScreen.classList.remove('hidden');
+                setTimeout(() => {
+                    toScreen.style.opacity = '1';
+                    toScreen.style.transform = 'scale(1)';
+                }, 50);
+            }, 250);
+            if(toScreen === mainAppScreen) switchAppTab('home');
+        }
+
+        document.getElementById('btn-update-banner').addEventListener('click', async () => {
+            const img = document.getElementById('admin-banner-img').value.trim();
+            const text = document.getElementById('admin-banner-text').value.trim();
+            if(isDemoMode) { 
+                document.getElementById('hero-banner-container').classList.remove('hidden');
+                document.getElementById('hero-banner-img').src = img;
+                document.getElementById('hero-banner-text').innerText = text;
+                alert('Demo Mode: Banner Updated Locally'); return; 
+            }
+            try { await setDoc(doc(db, "settings", "hero"), { imgUrl: img, text: text }); alert('Banner updated globally!'); } 
+            catch (err) { alert(err.message); }
+        });
+
+        document.getElementById('btn-update-bank').addEventListener('click', async () => {
+            const info = document.getElementById('admin-bank-textarea').value.trim();
+            if(isDemoMode) { document.getElementById('display-admin-bank-info').innerText = info; alert('Demo Mode: Bank info updated locally'); return; }
+            try { await setDoc(doc(db, "settings", "payment"), { info: info }); alert('Bank info updated!'); } 
+            catch (err) { alert(err.message); }
+        });
+
+        function listenToSystemSettings() {
+            if(isDemoMode) {
+                document.getElementById('hero-banner-container').classList.remove('hidden');
+                document.getElementById('hero-banner-img').src = "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800";
+                document.getElementById('hero-banner-text').innerText = "Discover New Premium Prep Packs!";
+                document.getElementById('display-admin-bank-info').innerText = "Send Payment to CBE: 1000123456789\nTelebirr: 0911223344";
+                return;
+            }
+
+            onSnapshot(doc(db, "settings", "hero"), (docSnap) => {
+                if(docSnap.exists() && docSnap.data().imgUrl) {
+                    document.getElementById('hero-banner-container').classList.remove('hidden');
+                    document.getElementById('hero-banner-img').src = docSnap.data().imgUrl;
+                    document.getElementById('hero-banner-text').innerText = docSnap.data().text || '';
+                }
+            });
+
+            onSnapshot(doc(db, "settings", "payment"), (docSnap) => {
+                if(docSnap.exists()) {
+                    document.getElementById('display-admin-bank-info').innerText = docSnap.data().info || 'No instructions provided yet.';
+                }
+            });
+        }
+
+        document.getElementById('btn-send-broadcast').addEventListener('click', async () => {
+            const msg = document.getElementById('admin-broadcast-msg').value.trim();
+            if (!msg) return;
+            if (isDemoMode) {
+                document.getElementById('announcement-text').innerText = msg;
+                document.getElementById('announcement-banner').classList.remove('hidden');
+                return;
+            }
+            try { await setDoc(doc(db, "announcements", "global"), { message: msg, timestamp: new Date() }); } catch(e){}
+        });
+
+        function listenToGlobalAnnouncements() {
+            if (isDemoMode) return;
+            onSnapshot(doc(db, "announcements", "global"), (docSnap) => {
+                if (docSnap.exists() && docSnap.data().message) {
+                    document.getElementById('announcement-text').innerText = docSnap.data().message;
+                    document.getElementById('announcement-banner').classList.remove('hidden');
+                } else {
+                    document.getElementById('announcement-banner').classList.add('hidden');
+                }
+            });
+        }
+
+        window.closeAnnouncement = function() { document.getElementById('announcement-banner').classList.add('hidden'); };
+
+        function listenToRegisteredStudents() {
+            if (isDemoMode) return;
+            onSnapshot(query(collection(db, "users"), orderBy("createdAt", "desc")), (snapshot) => {
+                const list = document.getElementById('admin-student-list');
+                list.innerHTML = '';
+                document.getElementById('student-counter').innerText = `${snapshot.size} Users`;
+
+                snapshot.forEach((userDoc) => {
+                    const s = userDoc.data();
+                    if (s.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) return;
+                    const item = document.createElement('div');
+                    item.className = "p-2 rounded-lg bg-black/40 border border-gray-700 flex justify-between text-xs";
+                    item.innerHTML = `
+                        <div>
+                            <h4 class="font-bold text-white">${s.fullName} <span class="text-[8px] text-blue-400">G${s.grade}</span></h4>
+                            <p class="text-[9px] text-gray-500">${s.email}</p>
+                            <span class="text-[8px] ${s.premium?'text-amber-400':'text-gray-400'}">${s.premium?'Premium':'Free'}</span>
+                        </div>
+                        <button onclick="togglePremiumAccess('${userDoc.id}', ${s.premium})" class="text-[9px] font-bold px-2 rounded bg-gray-800 text-white">${s.premium?'Revoke':'Upgrade'}</button>
+                    `;
+                    list.appendChild(item);
+                });
+            });
+        }
+
+        window.togglePremiumAccess = async function(uid, currentStatus) {
+            try { await updateDoc(doc(db, "users", uid), { premium: !currentStatus }); } catch (err) {}
+        };
+
+        document.getElementById('btn-add-course').addEventListener('click', async () => {
+            const title = courseTitleInput.value.trim();
+            const desc = courseDescInput.value.trim();
+            const thumb = courseThumbnailInput.value.trim();
+            const theme = courseThemeSelect.value;
+            if(!title) return;
+
+            if (isDemoMode) {
+                globalCoursesCache.push({ id: `c_${Date.now()}`, title, description: desc, theme, thumbnail: thumb });
+                renderFilteredCourses();
+                courseTitleInput.value = ''; courseDescInput.value = ''; courseThumbnailInput.value = '';
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "courses"), { title, description: desc, theme, thumbnail: thumb, createdAt: new Date() });
+                courseTitleInput.value = ''; courseDescInput.value = ''; courseThumbnailInput.value = '';
+            } catch (error) {}
+        });
+
+        // --- MEDIA HANDLING ---
+        document.getElementById('btn-add-lesson').addEventListener('click', async () => {
+            const title = lessonTitleInput.value.trim();
+            const videoUrl = lessonVideoUrlInput.value.trim();
+            const time = lessonTimeInput.value.trim();
+            const isLocked = lessonLockedInput.checked;
+            if(!currentCourseId || !title || !videoUrl) return;
+
+            if (isDemoMode) {
+                if (!demoLessons[currentCourseId]) demoLessons[currentCourseId] = [];
+                demoLessons[currentCourseId].push({ lessonDocId: `l_${Date.now()}`, title, videoUrl, time, locked: isLocked });
+                loadRealtimeLessons(currentCourseId);
+                return;
+            }
+            try {
+                await addDoc(collection(db, "lessons"), { courseId: currentCourseId, title, videoUrl, time, locked: isLocked, createdAt: new Date() });
+                lessonTitleInput.value = ''; lessonVideoUrlInput.value = ''; lessonTimeInput.value = '';
+            } catch(err) {}
+        });
+
+        document.getElementById('btn-add-pdf').addEventListener('click', async () => {
+            const title = pdfTitleInput.value.trim();
+            const url = pdfUrlInput.value.trim();
+            if(!currentCourseId || !title || !url) return;
+
+            if (isDemoMode) {
+                if (!demoPdfs[currentCourseId]) demoPdfs[currentCourseId] = [];
+                demoPdfs[currentCourseId].push({ pdfDocId: `p_${Date.now()}`, title, url });
+                loadRealtimePdfs(currentCourseId);
+                return;
+            }
+            try {
+                await addDoc(collection(db, "pdfs"), { courseId: currentCourseId, title, url, createdAt: new Date() });
+                pdfTitleInput.value = ''; pdfUrlInput.value = '';
+            } catch(err) {}
+        });
+
+        window.navigateToDetails = function(courseId, themeKey, title, desc) {
+            currentCourseId = courseId; currentLessonIndex = 0;
+            document.getElementById('player-badge').innerText = title;
+            document.getElementById('course-header-title').innerText = title;
+            loadRealtimeLessons(courseId);
+            loadRealtimePdfs(courseId);
+            switchScreen(mainAppScreen, detailsScreen);
+        };
+
+        function loadRealtimeLessons(courseId) {
+            if (isDemoMode) {
+                liveLessons = demoLessons[courseId] || [];
+                document.getElementById('course-lesson-count').innerText = `${liveLessons.length} Lessons`;
+                liveLessons.forEach((l, i) => l.id = (i + 1) < 10 ? `0${i + 1}` : `${i + 1}`);
+                if(liveLessons.length > 0) loadLessonDetails(currentLessonIndex);
+                renderLessonsPlaylist();
+                return;
+            }
+
+            onSnapshot(query(collection(db, "lessons"), where("courseId", "==", courseId)), (snapshot) => {
+                liveLessons = [];
+                document.getElementById('course-lesson-count').innerText = `${snapshot.size} Lessons`;
+                snapshot.forEach((docSnap) => liveLessons.push({ lessonDocId: docSnap.id, ...docSnap.data() }));
+                liveLessons.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+                liveLessons.forEach((l, i) => l.id = (i + 1) < 10 ? `0${i + 1}` : `${i + 1}`);
+                if(liveLessons.length > 0) loadLessonDetails(currentLessonIndex);
+                renderLessonsPlaylist();
+            });
+        }
+
+        function loadRealtimePdfs(courseId) {
+            if (isDemoMode) { livePdfs = demoPdfs[courseId] || []; renderPdfsList(); return; }
+            onSnapshot(query(collection(db, "pdfs"), where("courseId", "==", courseId)), (snapshot) => {
+                livePdfs = [];
+                snapshot.forEach((docSnap) => livePdfs.push({ pdfDocId: docSnap.id, ...docSnap.data() }));
+                livePdfs.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+                renderPdfsList();
+            });
+        }
+
+        window.navigateToCatalog = function() {
+            document.getElementById('video-container').innerHTML = '';
+            switchScreen(detailsScreen, mainAppScreen);
+        };
+
+        function loadLessonDetails(index) {
+            if(index >= liveLessons.length) index = 0;
+            currentLessonIndex = index;
+            const lesson = liveLessons[index];
+            const youtubeId = getYouTubeId(lesson.videoUrl);
+
+            if (youtubeId) {
+                document.getElementById('video-container').innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${youtubeId}?autoplay=1&modestbranding=1&rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+            } else {
+                document.getElementById('video-container').innerHTML = `<div class="w-full h-full flex flex-col justify-center items-center bg-gray-950 text-gray-400"><i class="fa-solid fa-triangle-exclamation text-amber-500 mb-2"></i><p class="text-xs">Invalid Video Link Format</p></div>`;
+            }
+        }
+
+        function renderLessonsPlaylist() {
+            const list = document.getElementById('live-chapters-list');
+            list.innerHTML = '';
+            const isAdmin = currentUserEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+            const isPremiumUser = currentUserProfile && currentUserProfile.premium === true;
+
+            liveLessons.forEach((lesson, index) => {
+                const lockIsActive = lesson.locked && !isAdmin && !isPremiumUser;
+                const isActive = index === currentLessonIndex && !lockIsActive;
+                
+                const card = document.createElement('div');
+                if (lockIsActive) {
+                    card.className = "bg-gray-950/20 p-3 rounded-2xl flex items-center justify-between border border-gray-800/40 opacity-60 cursor-pointer hover:bg-gray-900";
+                    card.onclick = () => openPaymentModal();
+                    card.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 bg-gray-900/60 rounded-xl flex items-center justify-center text-xs"><i class="fa-solid fa-lock text-[9px]"></i></div><div><h4 class="text-xs font-bold text-gray-400">${lesson.title}</h4><span class="text-[9px] text-amber-500 font-bold">Unlock pass required</span></div></div><i class="fa-solid fa-lock text-gray-600 text-xs mr-2"></i>`;
+                } else {
+                    card.className = `p-3 rounded-2xl flex items-center justify-between border cursor-pointer ${isActive ? 'bg-blue-500/10 border-blue-500/30' : 'bg-gray-900/40 border-gray-800'}`;
+                    card.onclick = () => { loadLessonDetails(index); renderLessonsPlaylist(); };
+                    card.innerHTML = `<div class="flex items-center gap-3"><div class="w-8 h-8 font-extrabold rounded-xl flex items-center justify-center text-xs border ${isActive ? 'bg-blue-500/20 text-blue-400 border-blue-500/30' : 'bg-gray-950/80 text-gray-400 border-gray-800'}">${lesson.id}</div><div class="max-w-[180px]"><h4 class="text-xs font-bold truncate ${isActive ? 'text-blue-400' : 'text-white'}">${lesson.title}</h4><span class="text-[9px] text-gray-450">${lesson.time} ${lesson.locked ? '⭐' : '🔓'}</span></div></div>
+                        <div class="flex items-center gap-2">
+                            ${isAdmin ? `<button class="text-red-400 bg-red-500/10 p-1.5 rounded-lg border border-red-500/15 text-[9px]" onclick="event.stopPropagation(); deleteDoc(doc(db, 'lessons', '${lesson.lessonDocId}'))"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                            <button class="w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-sm ${isActive ? 'bg-blue-600 text-white' : 'bg-gray-950 text-gray-400'}" href="#"><i class="fa-solid ${isActive ? 'fa-pause' : 'fa-play'} ${!isActive ? 'ml-0.5' : ''}"></i></button>
+                        </div>`;
+                }
+                list.appendChild(card);
+            });
+        }
+
+        function renderPdfsList() {
+            const list = document.getElementById('live-pdfs-list');
+            list.innerHTML = '';
+            const isAdmin = currentUserEmail.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+            livePdfs.forEach((pdf) => {
+                const card = document.createElement('div');
+                card.className = "p-3 rounded-2xl flex items-center justify-between border bg-gray-900/40 border-gray-800 hover:border-gray-700";
+                card.innerHTML = `<div class="flex items-center gap-3 cursor-pointer flex-1" onclick="openPdfViewer('${pdf.url}', '${pdf.title.replace(/'/g, "\\'")}')"><div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs border bg-gray-950/80 text-red-400 border-gray-800"><i class="fa-solid fa-file-pdf"></i></div><div><h4 class="text-xs font-bold text-white truncate">${pdf.title}</h4><span class="text-[9px] text-gray-450">Read in-app</span></div></div>
+                    <div class="flex items-center gap-2">
+                        ${isAdmin ? `<button class="text-red-400 bg-red-500/10 p-1.5 rounded-lg border border-red-500/15 text-[9px]" onclick="event.stopPropagation(); deleteDoc(doc(db, 'pdfs', '${pdf.pdfDocId}'))"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                        <button onclick="openPdfViewer('${pdf.url}', '${pdf.title.replace(/'/g, "\\'")}')" class="w-7 h-7 rounded-full flex items-center justify-center text-xs bg-gray-950 text-gray-400"><i class="fa-solid fa-book-open"></i></button>
+                    </div>`;
+                list.appendChild(card);
+            });
+        }
+
+        window.openPdfViewer = function(url, title) {
+            document.getElementById('pdf-viewer-title').innerText = title;
+            document.getElementById('pdf-iframe').src = url; 
+            const modal = document.getElementById('pdf-viewer-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.style.opacity = '1'; }, 50);
+        };
+
+        window.closePdfViewer = function() {
+            const modal = document.getElementById('pdf-viewer-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.classList.add('hidden'); document.getElementById('pdf-iframe').src = ''; }, 300);
+        };
+
+        window.switchMediaTab = function(type) {
+            if (type === 'contents') {
+                document.getElementById('tab-contents').className = "flex-1 py-3 text-center text-blue-400 border-b-2 border-blue-500 transition-all";
+                document.getElementById('tab-pdf').className = "flex-1 py-3 text-center text-gray-500 hover:text-gray-300 transition-all";
+                document.getElementById('tab-panel-contents').classList.remove('hidden');
+                document.getElementById('tab-panel-pdf').classList.add('hidden');
+            } else {
+                document.getElementById('tab-pdf').className = "flex-1 py-3 text-center text-blue-400 border-b-2 border-blue-500 transition-all";
+                document.getElementById('tab-contents').className = "flex-1 py-3 text-center text-gray-500 hover:text-gray-300 transition-all";
+                document.getElementById('tab-panel-pdf').classList.remove('hidden');
+                document.getElementById('tab-panel-contents').classList.add('hidden');
+            }
+        };
+
+        window.toggleNotification = function() {
+            const notifDot = document.getElementById('notif-dot');
+            notifDot.classList.toggle('hidden');
+            alert("No new notifications configured.");
+        };
+    </script>
+</body>
+</html>
